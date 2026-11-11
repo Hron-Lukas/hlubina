@@ -830,137 +830,397 @@ fn text(s: &str, x: f32, y: f32, size: f32, color: Color) {
 fn draw_hud(game: &Game) {
     let w = screen_width();
     let h = screen_height();
-    draw_rectangle(0., 0., w, 76., Color::new(0.0035, 0.005, 0.004, 0.096));
-    text("H", 24., 39., 30., AMBER);
-    text("HLUBINA", 54., 29., 20., LIGHTGRAY);
-    text("SEKTOR 7 // SMĚNA BEZ KONCE", 54., 50., 11., GRAY);
-    text("INTEGRITA", 300., 22., 11., GRAY);
-    draw_rectangle(300., 30., 180., 13., Color::new(0.012, 0.013, 0.011, 1.));
-    draw_rectangle(300., 30., 180. * (game.hp / game.max_hp).max(0.), 13., RED);
+    draw_rectangle(0., 0., w, 92., Color::new(0.02, 0.028, 0.022, 0.28));
+    draw_line(
+        20.,
+        91.,
+        w - 20.,
+        91.,
+        1.,
+        Color::new(0.40, 0.48, 0.39, 0.18),
+    );
+
+    draw_rectangle(20., 16., 42., 42., Color::new(0.07, 0.10, 0.075, 0.88));
+    draw_rectangle_lines(20., 16., 42., 42., 1., Color::new(0.55, 0.62, 0.50, 0.45));
+    text("H", 34., 46., 28., AMBER);
+    text("HLUBINA", 73., 35., 19., Color::new(0.84, 0.85, 0.78, 1.));
+    text(
+        "SEKTOR 7 // SMĚNA BEZ KONCE",
+        73.,
+        52.,
+        9.,
+        Color::new(0.42, 0.46, 0.41, 1.),
+    );
+
+    let stats_x = (w - 570.).max(250.);
+    let stats_y = 16.;
+    draw_rectangle(
+        stats_x,
+        stats_y,
+        405.,
+        52.,
+        Color::new(0.025, 0.035, 0.028, 0.82),
+    );
+    draw_rectangle_lines(
+        stats_x,
+        stats_y,
+        405.,
+        52.,
+        1.,
+        Color::new(0.43, 0.51, 0.42, 0.22),
+    );
+    text(
+        "INTEGRITA",
+        stats_x + 12.,
+        stats_y + 14.,
+        9.,
+        Color::new(0.48, 0.52, 0.46, 1.),
+    );
+    draw_rectangle(
+        stats_x + 12.,
+        stats_y + 22.,
+        150.,
+        10.,
+        Color::new(0.08, 0.10, 0.08, 1.),
+    );
+    draw_rectangle(
+        stats_x + 12.,
+        stats_y + 22.,
+        150. * (game.hp / game.max_hp).max(0.),
+        10.,
+        Color::new(0.75, 0.25, 0.19, 1.),
+    );
     text(
         &format!("{:.0} / {:.0}", game.hp.max(0.), game.max_hp),
-        300.,
-        60.,
-        16.,
-        LIGHTGRAY,
+        stats_x + 12.,
+        stats_y + 46.,
+        13.,
+        Color::new(0.82, 0.82, 0.75, 1.),
     );
-    text(&format!("ŠROT  {}", game.money), 520., 44., 18., GOLD);
-    text(&format!("VLNA  {}", game.wave), 670., 44., 18., AMBER);
     text(
-        &format!("ELIMINACE  {}", game.kills),
-        790.,
-        44.,
-        18.,
-        LIGHTGRAY,
+        "ŠROT",
+        stats_x + 183.,
+        stats_y + 14.,
+        9.,
+        Color::new(0.48, 0.52, 0.46, 1.),
     );
-    let labels = ["B DÍLNA", "M ZVUK", "H NÁPOVĚDA", "ESC PAUZA"];
-    for (i, l) in labels.iter().enumerate() {
-        text(l, w - 360. + i as f32 * 90., 25., 11., GRAY);
-    }
-    let base = w / 2. - 190.;
-    for i in 0..MAX_SLOTS {
-        let x = base + i as f32 * 78.;
-        draw_rectangle(
-            x,
-            h - 78.,
-            68.,
-            55.,
-            if i == game.active {
-                Color::new(0.025, 0.02, 0.01, 1.)
-            } else {
-                Color::new(0.008, 0.01, 0.008, 1.)
-            },
-        );
-        draw_rectangle_lines(
-            x,
-            h - 78.,
-            68.,
-            55.,
-            2.,
-            if i == game.active {
-                AMBER
-            } else {
-                Color::new(0.025, 0.03, 0.025, 1.)
-            },
-        );
-        text(&(i + 1).to_string(), x + 5., h - 60., 12., GRAY);
-        if let Some(wpn) = &game.slots[i] {
-            text(
-                wpn.name.split_whitespace().next().unwrap_or("?"),
-                x + 7.,
-                h - 38.,
-                10.,
-                wpn.color(),
-            );
-            text(
-                &format!("{:.0}", wpn.scaled_damage()),
-                x + 7.,
-                h - 20.,
-                11.,
-                LIGHTGRAY,
-            );
+    text(
+        &format!("{}", game.money),
+        stats_x + 183.,
+        stats_y + 39.,
+        17.,
+        GOLD,
+    );
+    text(
+        "VLNA",
+        stats_x + 260.,
+        stats_y + 14.,
+        9.,
+        Color::new(0.48, 0.52, 0.46, 1.),
+    );
+    text(
+        &format!("{}", game.wave),
+        stats_x + 260.,
+        stats_y + 39.,
+        17.,
+        AMBER,
+    );
+    text(
+        "ELIMINACE",
+        stats_x + 315.,
+        stats_y + 14.,
+        9.,
+        Color::new(0.48, 0.52, 0.46, 1.),
+    );
+    text(
+        &format!("{}", game.kills),
+        stats_x + 315.,
+        stats_y + 39.,
+        17.,
+        Color::new(0.82, 0.82, 0.75, 1.),
+    );
+
+    let actions = [("B", "DÍLNA"), ("M", "♪"), ("H", "?"), ("ESC", "Ⅱ")];
+    let action_start = w - 300.;
+    for (i, (key, label)) in actions.iter().enumerate() {
+        let x = action_start + i as f32 * 70.;
+        let width = if i == 0 { 70. } else { 42. };
+        draw_rectangle(x, 18., width, 36., Color::new(0.045, 0.06, 0.047, 0.90));
+        draw_rectangle_lines(x, 18., width, 36., 1., Color::new(0.50, 0.57, 0.47, 0.32));
+        if i == 0 {
+            text(key, x + 8., 33., 9., AMBER);
+            text(label, x + 27., 41., 9., Color::new(0.72, 0.74, 0.67, 1.));
+        } else {
+            text(label, x + 15., 42., 16., Color::new(0.72, 0.74, 0.67, 1.));
         }
     }
-    text(
-        "WASD pohyb   LMB/SPACE útok   E sebrat   Q odhodit",
-        20.,
-        h - 18.,
-        13.,
-        GRAY,
-    );
+
     if game.wave_left > 0 {
         text(
             &format!(
                 "ZBÝVÁ NEPŘÁTEL: {}",
                 game.wave_left + game.enemies.len() as i32
             ),
-            w - 250.,
-            h - 25.,
-            14.,
-            AMBER,
+            w - 240.,
+            77.,
+            9.,
+            Color::new(0.55, 0.58, 0.52, 1.),
         );
     } else if game.intermission > 0. {
         text(
             &format!("DALŠÍ VLNA ZA {:.1}", game.intermission),
-            w - 240.,
-            h - 25.,
-            14.,
-            GREEN,
+            w - 190.,
+            77.,
+            9.,
+            AMBER,
         );
     }
+
+    let deck_y = h - 112.;
+    draw_rectangle(
+        20.,
+        deck_y,
+        230.,
+        74.,
+        Color::new(0.025, 0.035, 0.028, 0.84),
+    );
+    draw_rectangle_lines(
+        20.,
+        deck_y,
+        230.,
+        74.,
+        1.,
+        Color::new(0.43, 0.50, 0.42, 0.24),
+    );
+    text(
+        "AKTIVNÍ ZBRAŇ",
+        34.,
+        deck_y + 16.,
+        8.,
+        Color::new(0.35, 0.39, 0.34, 1.),
+    );
+    if let Some(wpn) = game.active_weapon() {
+        text(wpn.name, 34., deck_y + 39., 16., wpn.color());
+        text(
+            &format!("{:.0} DMG // {:.2}s", wpn.scaled_damage(), wpn.cooldown),
+            34.,
+            deck_y + 59.,
+            10.,
+            Color::new(0.61, 0.63, 0.57, 1.),
+        );
+    }
+
+    let slot_w = 82.;
+    let slot_h = 90.;
+    let slot_gap = 7.;
+    let base = w / 2. - (slot_w * 5. + slot_gap * 4.) / 2.;
+    for i in 0..MAX_SLOTS {
+        let x = base + i as f32 * (slot_w + slot_gap);
+        let y = h - slot_h - 16.;
+        draw_rectangle(x, y, slot_w, slot_h, Color::new(0.035, 0.047, 0.037, 0.94));
+        draw_rectangle(
+            x,
+            y,
+            slot_w,
+            3.,
+            if i == game.active {
+                AMBER
+            } else {
+                Color::new(0.18, 0.23, 0.18, 1.)
+            },
+        );
+        draw_rectangle_lines(
+            x,
+            y,
+            slot_w,
+            slot_h,
+            1.,
+            if i == game.active {
+                Color::new(0.91, 0.63, 0.24, 0.8)
+            } else {
+                Color::new(0.45, 0.52, 0.44, 0.30)
+            },
+        );
+        text(
+            &(i + 1).to_string(),
+            x + 8.,
+            y + 17.,
+            10.,
+            Color::new(0.55, 0.58, 0.52, 1.),
+        );
+        if let Some(wpn) = &game.slots[i] {
+            draw_circle(x + slot_w / 2., y + 40., 18., wpn.color());
+            draw_circle_lines(
+                x + slot_w / 2.,
+                y + 40.,
+                22.,
+                1.,
+                Color::new(0.82, 0.83, 0.75, 0.3),
+            );
+            text(wpn.name, x + 7., y + 74., 8., wpn.color());
+        } else {
+            text(
+                "＋",
+                x + slot_w / 2. - 8.,
+                y + 50.,
+                22.,
+                Color::new(0.25, 0.30, 0.25, 1.),
+            );
+        }
+    }
+
+    let right_x = w - 235.;
+    draw_rectangle(
+        right_x,
+        deck_y,
+        215.,
+        74.,
+        Color::new(0.025, 0.035, 0.028, 0.80),
+    );
+    draw_rectangle_lines(
+        right_x,
+        deck_y,
+        215.,
+        74.,
+        1.,
+        Color::new(0.43, 0.50, 0.42, 0.20),
+    );
+    text(
+        "WASD",
+        right_x + 14.,
+        deck_y + 23.,
+        10.,
+        Color::new(0.78, 0.78, 0.71, 1.),
+    );
+    text(
+        "pohyb",
+        right_x + 65.,
+        deck_y + 23.,
+        9.,
+        Color::new(0.43, 0.47, 0.42, 1.),
+    );
+    text(
+        "LMB",
+        right_x + 14.,
+        deck_y + 43.,
+        10.,
+        Color::new(0.78, 0.78, 0.71, 1.),
+    );
+    text(
+        "útok",
+        right_x + 65.,
+        deck_y + 43.,
+        9.,
+        Color::new(0.43, 0.47, 0.42, 1.),
+    );
+    text(
+        "E",
+        right_x + 119.,
+        deck_y + 23.,
+        10.,
+        Color::new(0.78, 0.78, 0.71, 1.),
+    );
+    text(
+        "sebrat",
+        right_x + 139.,
+        deck_y + 23.,
+        9.,
+        Color::new(0.43, 0.47, 0.42, 1.),
+    );
+    text(
+        "Q",
+        right_x + 119.,
+        deck_y + 43.,
+        10.,
+        Color::new(0.78, 0.78, 0.71, 1.),
+    );
+    text(
+        "odhodit",
+        right_x + 139.,
+        deck_y + 43.,
+        9.,
+        Color::new(0.43, 0.47, 0.42, 1.),
+    );
+    text(
+        "LMB / SPACE  útok aktivní zbraní",
+        w / 2. - 105.,
+        h - 4.,
+        8.,
+        Color::new(0.30, 0.34, 0.30, 1.),
+    );
 }
 
-fn overlay(title: &str, subtitle: &str) {
+fn draw_overlay_backdrop() {
     draw_rectangle(
         0.,
         0.,
         screen_width(),
         screen_height(),
-        Color::new(0.002, 0.003, 0.0025, 0.086),
+        Color::new(0.012, 0.018, 0.014, 0.72),
     );
-    text(
-        title,
-        screen_width() / 2. - measure_text(title, None, 48, 1.).width / 2.,
-        screen_height() / 2. - 35.,
-        48.,
-        AMBER,
+    draw_circle(
+        screen_width() / 2.,
+        screen_height() * 0.38,
+        screen_height() * 0.65,
+        Color::new(0.18, 0.24, 0.17, 0.16),
     );
-    text(
-        subtitle,
-        screen_width() / 2. - measure_text(subtitle, None, 18, 1.).width / 2.,
-        screen_height() / 2. + 5.,
-        18.,
-        LIGHTGRAY,
+}
+
+fn panel(x: f32, y: f32, width: f32, height: f32, accent: Color) {
+    draw_rectangle(x, y, width, height, Color::new(0.035, 0.05, 0.038, 0.96));
+    draw_rectangle(
+        x + 1.,
+        y + 1.,
+        width - 2.,
+        20.,
+        Color::new(0.8, 0.85, 0.75, 0.025),
+    );
+    draw_rectangle_lines(x, y, width, height, 1., Color::new(0.55, 0.62, 0.52, 0.34));
+    draw_line(x, y, x + width - 20., y, 2., accent);
+    draw_line(
+        x + width,
+        y + 20.,
+        x + width,
+        y + height,
+        1.,
+        Color::new(0.55, 0.62, 0.52, 0.22),
     );
 }
 
 fn draw_shop(game: &Game) {
-    overlay("DÍLNA // TERMINÁL 04", "B / ESC zavře dílnu");
+    draw_overlay_backdrop();
+    let width = screen_width().min(1010.);
+    let x = (screen_width() - width) / 2.;
+    let y = 42.;
+    let height = (screen_height() - 84.).max(500.);
+    panel(x, y, width, height, AMBER);
+    draw_circle(x + 28., y + 30., 4., AMBER);
+    text(
+        "DÍLNA // TERMINÁL 04",
+        x + 43.,
+        y + 34.,
+        10.,
+        Color::new(0.68, 0.70, 0.62, 1.),
+    );
+    text(
+        "VYLEPŠENÍ VÝBAVY",
+        x + 24.,
+        y + 78.,
+        29.,
+        Color::new(0.86, 0.84, 0.75, 1.),
+    );
+    text(
+        "B / ESC  zavře dílnu",
+        x + width - 185.,
+        y + 33.,
+        9.,
+        Color::new(0.47, 0.51, 0.45, 1.),
+    );
     text(
         &format!("ŠROT: {}", game.money),
-        screen_width() / 2. - 110.,
-        100.,
-        22.,
+        x + width - 170.,
+        y + 77.,
+        16.,
         GOLD,
     );
     let names = [
@@ -982,16 +1242,31 @@ fn draw_shop(game: &Game) {
     for i in 0..6 {
         let col = i % 2;
         let row = i / 2;
-        let x = screen_width() / 2. - 390. + col as f32 * 400.;
-        let y = 150. + row as f32 * 86.;
+        let card_x = x + 24. + col as f32 * ((width - 72.) / 2.);
+        let card_y = y + 112. + row as f32 * 82.;
         let price = [40, 45, 35, 50, 60, 30][i] as f32
             * ([1.55_f32, 1.6, 1.5, 1.58, 1.62, 1.5][i]).powi(game.upgrades[i]);
-        draw_rectangle(x, y, 360., 68., Color::new(0.008, 0.011, 0.008, 1.));
+        let card_width = (width - 72.) / 2.;
+        draw_rectangle(
+            card_x,
+            card_y,
+            card_width,
+            68.,
+            Color::new(0.045, 0.065, 0.048, 0.92),
+        );
+        draw_rectangle_lines(
+            card_x,
+            card_y,
+            card_width,
+            68.,
+            1.,
+            Color::new(0.50, 0.58, 0.48, 0.28),
+        );
         text(
             &format!("[{}] {}", i + 1, names[i]),
-            x + 16.,
-            y + 23.,
-            17.,
+            card_x + 16.,
+            card_y + 24.,
+            15.,
             LIGHTGRAY,
         );
         text(
@@ -999,9 +1274,9 @@ fn draw_shop(game: &Game) {
                 "LVL {}   {}   {:.0} ŠROTU",
                 game.upgrades[i], effects[i], price
             ),
-            x + 16.,
-            y + 48.,
-            13.,
+            card_x + 16.,
+            card_y + 49.,
+            11.,
             if game.money >= price.round() as i32 {
                 GREEN
             } else {
@@ -1010,16 +1285,184 @@ fn draw_shop(game: &Game) {
         );
     }
     let repair = ((game.max_hp - game.hp) * 0.65).ceil().max(8.);
+    draw_rectangle(
+        x + 24.,
+        y + height - 79.,
+        width - 48.,
+        50.,
+        Color::new(0.05, 0.07, 0.05, 0.92),
+    );
+    draw_rectangle_lines(
+        x + 24.,
+        y + height - 79.,
+        width - 48.,
+        50.,
+        1.,
+        Color::new(0.50, 0.58, 0.48, 0.25),
+    );
     text(
         &format!("[R] OPRAVIT INTEGRITU  ({:.0} ŠROTU)", repair),
-        screen_width() / 2. - 190.,
-        450.,
-        18.,
+        x + 42.,
+        y + height - 49.,
+        14.,
         if game.money >= repair.round() as i32 {
             GREEN
         } else {
             GRAY
         },
+    );
+}
+
+fn draw_pause() {
+    draw_overlay_backdrop();
+    let width = 440.;
+    let height = 365.;
+    let x = (screen_width() - width) / 2.;
+    let y = (screen_height() - height) / 2.;
+    panel(x, y, width, height, AMBER);
+    draw_circle(x + 30., y + 31., 4., AMBER);
+    text(
+        "SMĚNA POZASTAVENA",
+        x + 45.,
+        y + 35.,
+        10.,
+        Color::new(0.68, 0.70, 0.62, 1.),
+    );
+    text(
+        "PAUZA",
+        x + 28.,
+        y + 91.,
+        42.,
+        Color::new(0.88, 0.86, 0.77, 1.),
+    );
+    text(
+        "Továrna počká. Tvůj šrot taky.",
+        x + 29.,
+        y + 123.,
+        12.,
+        Color::new(0.52, 0.56, 0.50, 1.),
+    );
+    let buttons = [
+        ("ENTER", "POKRAČOVAT"),
+        ("B", "DÍLNA"),
+        ("H", "OVLÁDÁNÍ"),
+        ("R", "NOVÁ SMĚNA"),
+    ];
+    for (i, (key, label)) in buttons.iter().enumerate() {
+        let by = y + 151. + i as f32 * 46.;
+        let fill = if i == 0 {
+            Color::new(0.70, 0.38, 0.10, 1.)
+        } else {
+            Color::new(0.06, 0.08, 0.06, 0.95)
+        };
+        draw_rectangle(x + 28., by, width - 56., 37., fill);
+        draw_rectangle_lines(
+            x + 28.,
+            by,
+            width - 56.,
+            37.,
+            1.,
+            if i == 0 {
+                Color::new(0.95, 0.69, 0.30, 0.85)
+            } else {
+                Color::new(0.50, 0.58, 0.48, 0.30)
+            },
+        );
+        text(
+            key,
+            x + 43.,
+            by + 24.,
+            10.,
+            if i == 0 {
+                Color::new(0.15, 0.10, 0.04, 1.)
+            } else {
+                AMBER
+            },
+        );
+        text(
+            label,
+            x + 105.,
+            by + 24.,
+            11.,
+            if i == 0 {
+                Color::new(0.15, 0.10, 0.04, 1.)
+            } else {
+                Color::new(0.76, 0.77, 0.69, 1.)
+            },
+        );
+    }
+}
+
+fn draw_gameover(game: &Game) {
+    draw_overlay_backdrop();
+    let width = 440.;
+    let height = 390.;
+    let x = (screen_width() - width) / 2.;
+    let y = (screen_height() - height) / 2.;
+    panel(x, y, width, height, RED);
+    draw_circle(x + 30., y + 31., 4., RED);
+    text(
+        "SIGNÁL OPERÁTORA ZTRACEN",
+        x + 45.,
+        y + 35.,
+        10.,
+        Color::new(0.78, 0.45, 0.40, 1.),
+    );
+    text(
+        "SMĚNA UKONČENA",
+        x + 28.,
+        y + 91.,
+        31.,
+        Color::new(0.91, 0.68, 0.62, 1.),
+    );
+    text(
+        "Sektor 7 si tě pamatuje. Zkus to znovu.",
+        x + 29.,
+        y + 123.,
+        12.,
+        Color::new(0.62, 0.54, 0.51, 1.),
+    );
+    let stats = [
+        ("DOSAŽENÁ VLNA", format!("{}", game.wave)),
+        ("ELIMINACE", format!("{}", game.kills)),
+        ("VYDĚLANÝ ŠROT", format!("{}", game.money)),
+        ("ČAS SMĚNY", format!("{:.0}s", game.elapsed)),
+    ];
+    for (i, (label, value)) in stats.iter().enumerate() {
+        let col = i % 2;
+        let row = i / 2;
+        let sx = x + 28. + col as f32 * 192.;
+        let sy = y + 151. + row as f32 * 61.;
+        draw_rectangle(sx, sy, 184., 55., Color::new(0.045, 0.06, 0.05, 0.90));
+        draw_rectangle_lines(sx, sy, 184., 55., 1., Color::new(0.50, 0.58, 0.48, 0.22));
+        text(
+            label,
+            sx + 12.,
+            sy + 18.,
+            8.,
+            Color::new(0.42, 0.46, 0.41, 1.),
+        );
+        text(
+            value,
+            sx + 12.,
+            sy + 42.,
+            17.,
+            Color::new(0.84, 0.82, 0.75, 1.),
+        );
+    }
+    draw_rectangle(
+        x + 28.,
+        y + height - 57.,
+        width - 56.,
+        39.,
+        Color::new(0.70, 0.25, 0.18, 1.),
+    );
+    text(
+        "NOVÁ SMĚNA  →",
+        x + 150.,
+        y + height - 32.,
+        12.,
+        Color::new(0.17, 0.06, 0.04, 1.),
     );
 }
 
@@ -1290,16 +1733,10 @@ async fn main() {
                 draw_shop(&game);
             }
             if game.mode == Mode::Paused {
-                overlay("PAUZA", "ENTER pokračovat   B dílna   R nová směna");
+                draw_pause();
             }
             if game.mode == Mode::GameOver {
-                overlay(
-                    "SMĚNA UKONČENA",
-                    &format!(
-                        "Vlna {}   |   Eliminace {}   |   Šrot {}   |   ENTER nová směna",
-                        game.wave, game.kills, game.money
-                    ),
-                );
+                draw_gameover(&game);
             }
         }
         next_frame().await;
