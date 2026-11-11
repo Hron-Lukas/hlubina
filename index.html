@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0d0b">
+  <title>HLUBINA // Sektor 7</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="game-shell">
+    <canvas id="game" aria-label="Herní plocha"></canvas>
+
+    <div id="vignette"></div>
+    <div id="damage-flash"></div>
+
+    <div id="ui">
+      <header id="hud" class="hud">
+        <div class="brand-block">
+          <div class="brand-mark">H<span>7</span></div>
+          <div>
+            <div class="brand-title">HLUBINA</div>
+            <div class="brand-sub">SEKTOR 7 // SMĚNA BEZ KONCE</div>
+          </div>
+        </div>
+
+        <div class="hud-stats">
+          <div class="stat stat-hp">
+            <div class="stat-label">INTEGRITA</div>
+            <div class="bar-frame">
+              <div id="hp-fill" class="bar-fill"></div>
+              <div id="hp-ticks" class="bar-ticks"></div>
+            </div>
+            <div id="hp-text" class="stat-value">100 / 100</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">ŠROT</div>
+            <div class="stat-value stat-money"><span class="coin-glyph"></span><span id="money-text">0</span></div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">VLNA</div>
+            <div id="wave-text" class="stat-value">--</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">ELIMINACE</div>
+            <div id="kills-text" class="stat-value">0</div>
+          </div>
+        </div>
+
+        <div class="hud-actions">
+          <button id="shop-btn" class="hud-button" type="button" title="Otevřít dílnu (B)">
+            <span class="button-key">B</span>
+            <span>DÍLNA</span>
+          </button>
+          <button id="sound-btn" class="hud-button icon-button" type="button" title="Zvuk (M)" aria-label="Přepnout zvuk">♪</button>
+          <button id="help-btn" class="hud-button icon-button" type="button" title="Ovládání (H)" aria-label="Nápověda">?</button>
+          <button id="pause-btn" class="hud-button icon-button" type="button" title="Pauza (Esc)" aria-label="Pauza">Ⅱ</button>
+        </div>
+      </header>
+
+      <div id="wave-banner" class="wave-banner"></div>
+      <div id="toast-stack" class="toast-stack"></div>
+
+      <div class="bottom-deck">
+        <div class="deck-left">
+          <div id="active-weapon" class="active-weapon">
+            <span class="active-label">AKTIVNÍ ZBRAŇ</span>
+            <span id="active-name" class="active-name">KRUMPÁČ</span>
+            <span id="active-stats" class="active-stats">18 DMG // 0.45s</span>
+          </div>
+        </div>
+
+        <div id="hotbar" class="hotbar" aria-label="Inventář"></div>
+
+        <div class="deck-right">
+          <div class="control-line"><kbd>WASD</kbd><span>pohyb</span></div>
+          <div class="control-line"><kbd>LMB</kbd><span>útok</span></div>
+          <div class="control-line"><kbd>E</kbd><span>sebrat</span></div>
+          <div class="control-line"><kbd>Q</kbd><span>odhodit</span></div>
+        </div>
+      </div>
+
+      <div id="interact-prompt" class="interact-prompt"></div>
+      <div id="wave-status" class="wave-status"></div>
+    </div>
+
+    <section id="start-screen" class="overlay start-screen">
+      <div class="menu-grid"></div>
+      <div class="start-content">
+        <div class="eyebrow"><span class="pulse-dot"></span> AUTOMATIZACE SELHALA // 03:47</div>
+        <h1 class="game-title">HLUBINA<span class="title-7">7</span></h1>
+        <p class="game-subtitle">Továrna zmlkla. Ve skladech se něco probudilo.<br>Vezmi krumpáč a vydělej si na cestu ven.</p>
+
+        <div class="start-controls">
+          <div class="control-card"><kbd>WASD</kbd><kbd>↑↓←→</kbd><span>Pohyb po sektoru</span></div>
+          <div class="control-card"><kbd>MYŠ</kbd><span>Míření zbraně</span></div>
+          <div class="control-card"><kbd>LMB</kbd><kbd>SPACE</kbd><span>Útok</span></div>
+          <div class="control-card"><kbd>1–5</kbd><span>Volba slotu</span></div>
+          <div class="control-card"><kbd>E</kbd><span>Sebrat / vyměnit</span></div>
+          <div class="control-card"><kbd>Q</kbd><span>Odhodit zbraň</span></div>
+          <div class="control-card"><kbd>B</kbd><span>Dílna a vylepšení</span></div>
+          <div class="control-card"><kbd>ESC</kbd><span>Pauza</span></div>
+        </div>
+
+        <div class="start-footer">
+          <button id="start-btn" class="primary-button" type="button"><span>ZAHÁJIT SMĚNU</span><span class="button-arrow">→</span></button>
+          <div class="start-note">Inventář má 5 slotů. Zbraně vypadávají z nepřátel.<br>Za šrot kupuješ trvalá vylepšení v dílně.</div>
+        </div>
+      </div>
+      <div class="menu-corner menu-corner-tl"></div>
+      <div class="menu-corner menu-corner-br"></div>
+    </section>
+
+    <section id="shop-screen" class="overlay shop-screen hidden" aria-hidden="true">
+      <div class="panel shop-panel">
+        <header class="panel-header">
+          <div>
+            <div class="eyebrow"><span class="pulse-dot amber"></span> DÍLNA // TERMINÁL 04</div>
+            <h2>VYLEPŠENÍ VÝBAVY</h2>
+          </div>
+          <div class="panel-currency"><span class="coin-glyph big"></span><span id="shop-money">0</span><span>ŠROTU</span></div>
+          <button id="shop-close" class="close-button" type="button" aria-label="Zavřít dílnu">×</button>
+        </header>
+
+        <div id="upgrade-grid" class="upgrade-grid"></div>
+
+        <footer class="panel-footer">
+          <div class="panel-hint"><kbd>B</kbd> nebo <kbd>ESC</kbd> zavře dílnu. Hra je pozastavená.</div>
+          <button id="repair-btn" class="repair-button" type="button">
+            <span class="repair-icon">+</span>
+            <span><strong>OPRAVIT INTEGRITU</strong><small id="repair-cost">0 ŠROTU</small></span>
+          </button>
+        </footer>
+      </div>
+    </section>
+
+    <section id="pause-screen" class="overlay pause-screen hidden" aria-hidden="true">
+      <div class="panel small-panel">
+        <div class="eyebrow"><span class="pulse-dot amber"></span> SMĚNA POZASTAVENA</div>
+        <h2>PAUZA</h2>
+        <p class="panel-copy">Továrna počká. Tvůj šrot taky.</p>
+        <div class="stack-buttons">
+          <button id="resume-btn" class="primary-button" type="button">POKRAČOVAT</button>
+          <button id="pause-shop-btn" class="secondary-button" type="button">DÍLNA <kbd>B</kbd></button>
+          <button id="pause-help-btn" class="secondary-button" type="button">OVLÁDÁNÍ <kbd>H</kbd></button>
+          <button id="restart-btn" class="ghost-button" type="button">NOVÁ SMĚNA</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="help-screen" class="overlay pause-screen hidden" aria-hidden="true">
+      <div class="panel help-panel">
+        <header class="panel-header">
+          <div>
+            <div class="eyebrow"><span class="pulse-dot"></span> PŘÍRUČKA OPERÁTORA</div>
+            <h2>OVLÁDÁNÍ</h2>
+          </div>
+          <button id="help-close" class="close-button" type="button" aria-label="Zavřít nápovědu">×</button>
+        </header>
+        <div class="help-grid">
+          <div><kbd>WASD</kbd><kbd>ŠIPKY</kbd><p>Pohyb postavy po sektoru.</p></div>
+          <div><kbd>MYŠ</kbd><p>Míření. Postava se otáčí za kurzorem.</p></div>
+          <div><kbd>LMB</kbd><kbd>SPACE</kbd><p>Útok aktivní zbraní. Podrž pro palbu.</p></div>
+          <div><kbd>1</kbd>–<kbd>5</kbd><p>Výběr slotu v inventáři.</p></div>
+          <div><kbd>E</kbd><p>Sebrání zbraně, případně výměna s aktivním slotem.</p></div>
+          <div><kbd>Q</kbd><p>Odhození zbraně z aktivního slotu.</p></div>
+          <div><kbd>PRAVÉ TL.</kbd><p>Kliknutí na slot odhodí zbraň.</p></div>
+          <div><kbd>B</kbd><p>Dílna: vylepšení poškození, odolnosti a dalších statů.</p></div>
+          <div><kbd>M</kbd><p>Zapnutí / vypnutí zvuku.</p></div>
+          <div><kbd>ESC</kbd><p>Pauza, zavření oken.</p></div>
+        </div>
+        <div class="help-tip"><strong>TIP:</strong> Zlaté a fialové zbraně mají výrazně vyšší poškození. Když je inventář plný, stůj u zbraně a stiskni <kbd>E</kbd> — vymění se za tu v aktivním slotu.</div>
+      </div>
+    </section>
+
+    <section id="gameover-screen" class="overlay gameover-screen hidden" aria-hidden="true">
+      <div class="panel small-panel gameover-panel">
+        <div class="eyebrow danger"><span class="pulse-dot red"></span> SIGNÁL OPERÁTORA ZTRACEN</div>
+        <h2>SMĚNA UKONČENA</h2>
+        <p class="panel-copy">Sektor 7 si tě pamatuje. Zkus to znovu.</p>
+        <div id="gameover-stats" class="gameover-stats"></div>
+        <button id="again-btn" class="primary-button" type="button">NOVÁ SMĚNA <span class="button-arrow">→</span></button>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/core.js"></script>
+  <script src="js/world.js"></script>
+  <script src="js/actors.js"></script>
+  <script src="js/render.js"></script>
+</body>
+</html>
