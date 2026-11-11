@@ -693,14 +693,8 @@ fn camera(game: &Game) -> Camera2D {
 
 fn draw_world(game: &Game) {
     set_camera(&camera(game));
-    clear_background(Color::new(0.0035, 0.005, 0.004, 1.));
-    draw_rectangle(
-        0.,
-        0.,
-        WORLD_W,
-        WORLD_H,
-        Color::new(0.0045, 0.0065, 0.005, 1.),
-    );
+    clear_background(Color::new(0.035, 0.05, 0.04, 1.));
+    draw_rectangle(0., 0., WORLD_W, WORLD_H, Color::new(0.045, 0.065, 0.05, 1.));
     let start_x = (game.player.x - 900.).max(0.);
     let start_y = (game.player.y - 650.).max(0.);
     for x in (start_x as i32 / 80 * 80..(game.player.x + 900.) as i32).step_by(80) {
@@ -710,7 +704,7 @@ fn draw_world(game: &Game) {
             x as f32,
             (game.player.y + 650.).min(WORLD_H),
             1.,
-            Color::new(0.008, 0.012, 0.009, 1.),
+            Color::new(0.08, 0.12, 0.09, 1.),
         );
     }
     for y in (start_y as i32 / 80 * 80..(game.player.y + 650.) as i32).step_by(80) {
@@ -720,17 +714,76 @@ fn draw_world(game: &Game) {
             (game.player.x + 900.).min(WORLD_W),
             y as f32,
             1.,
-            Color::new(0.008, 0.012, 0.009, 1.),
+            Color::new(0.08, 0.12, 0.09, 1.),
         );
     }
+    let decor_start_x = (game.player.x - 1000.).max(40.) as i32;
+    let decor_end_x = (game.player.x + 1000.).min(WORLD_W - 40.) as i32;
+    let decor_start_y = (game.player.y - 720.).max(40.) as i32;
+    let decor_end_y = (game.player.y + 720.).min(WORLD_H - 40.) as i32;
+    for gx in (decor_start_x / 160 * 160..decor_end_x).step_by(160) {
+        for gy in (decor_start_y / 160 * 160..decor_end_y).step_by(160) {
+            let seed = (gx / 160 * 37 + gy / 160 * 91).unsigned_abs() % 11;
+            let x = gx as f32 + 28.;
+            let y = gy as f32 + 34.;
+            if seed == 0 || seed == 5 {
+                draw_rectangle(x, y, 62., 35., Color::new(0.13, 0.16, 0.13, 1.));
+                draw_rectangle_lines(x, y, 62., 35., 2., Color::new(0.29, 0.34, 0.27, 0.8));
+                draw_line(
+                    x + 8.,
+                    y + 8.,
+                    x + 54.,
+                    y + 27.,
+                    2.,
+                    Color::new(0.08, 0.10, 0.08, 1.),
+                );
+                draw_line(
+                    x + 54.,
+                    y + 8.,
+                    x + 8.,
+                    y + 27.,
+                    2.,
+                    Color::new(0.08, 0.10, 0.08, 1.),
+                );
+            } else if seed == 2 || seed == 8 {
+                draw_circle(x + 18., y + 22., 14., Color::new(0.28, 0.24, 0.16, 1.));
+                draw_circle_lines(x + 18., y + 22., 15., 3., Color::new(0.47, 0.39, 0.22, 1.));
+                draw_circle(x + 49., y + 18., 11., Color::new(0.25, 0.23, 0.17, 1.));
+                draw_circle_lines(x + 49., y + 18., 12., 2., Color::new(0.43, 0.37, 0.23, 1.));
+            } else if seed == 3 || seed == 9 {
+                draw_line(
+                    x,
+                    y + 18.,
+                    x + 70.,
+                    y + 18.,
+                    8.,
+                    Color::new(0.18, 0.21, 0.17, 1.),
+                );
+                draw_line(
+                    x + 10.,
+                    y + 18.,
+                    x + 60.,
+                    y + 18.,
+                    3.,
+                    Color::new(0.52, 0.33, 0.16, 1.),
+                );
+                draw_circle(x + 10., y + 18., 7., Color::new(0.34, 0.38, 0.31, 1.));
+                draw_circle(x + 60., y + 18., 7., Color::new(0.34, 0.38, 0.31, 1.));
+            } else if seed == 6 {
+                draw_circle(x + 34., y + 12., 5., AMBER);
+                draw_circle_lines(
+                    x + 34.,
+                    y + 12.,
+                    12.,
+                    2.,
+                    Color::new(0.91, 0.63, 0.24, 0.28),
+                );
+                draw_rectangle(x + 30., y + 17., 8., 28., Color::new(0.18, 0.22, 0.17, 1.));
+            }
+        }
+    }
     for x in (100..2700).step_by(310) {
-        draw_rectangle(
-            x as f32,
-            180.,
-            110.,
-            20.,
-            Color::new(0.012, 0.015, 0.012, 1.),
-        );
+        draw_rectangle(x as f32, 180., 110., 20., Color::new(0.12, 0.15, 0.12, 1.));
         draw_rectangle(x as f32, 182., 110., 3., AMBER);
     }
     for d in &game.drops {
@@ -765,7 +818,7 @@ fn draw_world(game: &Game) {
     }
     for e in &game.enemies {
         let color = match e.kind {
-            0 => Color::new(0.055, 0.065, 0.05, 1.),
+            0 => Color::new(0.55, 0.65, 0.50, 1.),
             1 => SKYBLUE,
             2 => VIOLET,
             3 => ORANGE,
@@ -780,7 +833,7 @@ fn draw_world(game: &Game) {
             e.pos.y - e.radius - 10.,
             e.radius * 2.,
             3.,
-            Color::new(0.01, 0.01, 0.01, 1.),
+            Color::new(0.10, 0.10, 0.10, 1.),
         );
         draw_rectangle(
             e.pos.x - e.radius,
@@ -793,7 +846,7 @@ fn draw_world(game: &Game) {
     let player_color = if game.invuln > 0. {
         WHITE
     } else {
-        Color::new(0.08, 0.072, 0.048, 1.)
+        Color::new(0.80, 0.72, 0.48, 1.)
     };
     draw_circle(game.player.x, game.player.y, 16., player_color);
     draw_line(
@@ -852,7 +905,7 @@ fn draw_hud(game: &Game) {
         Color::new(0.42, 0.46, 0.41, 1.),
     );
 
-    let stats_x = (w - 570.).max(250.);
+    let stats_x = 330.;
     let stats_y = 16.;
     draw_rectangle(
         stats_x,
@@ -941,7 +994,7 @@ fn draw_hud(game: &Game) {
     );
 
     let actions = [("B", "DÍLNA"), ("M", "♪"), ("H", "?"), ("ESC", "Ⅱ")];
-    let action_start = w - 300.;
+    let action_start = w - 252.;
     for (i, (key, label)) in actions.iter().enumerate() {
         let x = action_start + i as f32 * 70.;
         let width = if i == 0 { 70. } else { 42. };
