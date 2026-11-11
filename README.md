@@ -1,5 +1,24 @@
 # HLUBINA // Sektor 7
 
+## Nativní Rust verze pro Linux/Fedoru
+
+Repozitář nyní obsahuje také nativní desktopovou verzi hry v Rustu. Spouští se jako samostatné okno na Fedoře s GNOME a nevyžaduje Node.js ani webový prohlížeč.
+
+### Požadavky
+
+- Fedora/Linux s grafickým prostředím (GNOME, X11 nebo Wayland přes kompatibilní backend)
+- Rust a Cargo (`sudo dnf install rust cargo`)
+
+### Spuštění
+
+```bash
+cargo run --release
+```
+
+Výsledný binární soubor je `target/release/hlubina`.
+
+Rustová verze zachovává hlavní herní smyčku původní webové hry: pohyb, míření myší, boj zblízka i střelbu, vlny nepřátel, elitní nepřátele, dropy, pět slotů inventáře, šrot a dílnu s upgrady. Vykreslování a vstup zajišťuje knihovna `macroquad`.
+
 Top-down akční survival hra do prohlížeče v temném průmyslovém stylu. Hráč začíná s krumpáčem, likviduje vlny nepřátel, sbírá šrot a lepší zbraně, spravuje pětislotový inventář a v dílně si kupuje trvalá vylepšení.
 
 Hra je celá v češtině, běží bez instalace a bez externích knihoven. Grafika, svět i zvuky se generují procedurálně v prohlížeči.

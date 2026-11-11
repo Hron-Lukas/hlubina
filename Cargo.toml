@@ -1,0 +1,9 @@
+[package]
+name = "hlubina"
+version = "1.0.0"
+edition = "2021"
+description = "HLUBINA // Sektor 7 - native Rust survival game"
+license = "MIT"
+
+[dependencies]
+macroquad = "0.4"
