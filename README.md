@@ -2,7 +2,7 @@
 
 ## Nativní Rust verze pro Linux/Fedoru
 
-Repozitář nyní obsahuje také nativní desktopovou verzi hry v Rustu. Spouští se jako samostatné okno na Fedoře s GNOME a nevyžaduje Node.js ani webový prohlížeč.
+Repozitář nyní obsahuje také nativní desktopovou verzi hry v Rustu. Spouští se jako samostatné okno na Fedoře s GNOME a nevyžaduje Node.js ani webový prohlížeč. UI používá přibalený Unicode font, takže se správně zobrazují i české texty.
 
 ### Požadavky
 

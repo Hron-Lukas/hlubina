@@ -1,9 +1,14 @@
 use macroquad::prelude::*;
+use std::cell::RefCell;
 
 const WORLD_W: f32 = 2800.0;
 const WORLD_H: f32 = 2100.0;
 const MAX_SLOTS: usize = 5;
 const AMBER: Color = Color::new(0.91, 0.63, 0.24, 1.0);
+
+thread_local! {
+    static UI_FONT: RefCell<Option<Font>> = const { RefCell::new(None) };
+}
 
 #[derive(Clone, Copy, PartialEq)]
 enum Mode {
@@ -803,7 +808,23 @@ fn draw_world(game: &Game) {
 }
 
 fn text(s: &str, x: f32, y: f32, size: f32, color: Color) {
-    draw_text(s, x, y, size, color);
+    UI_FONT.with(|font| {
+        if let Some(font) = font.borrow().as_ref() {
+            draw_text_ex(
+                s,
+                x,
+                y,
+                TextParams {
+                    font: Some(font),
+                    font_size: size as u16,
+                    color,
+                    ..Default::default()
+                },
+            );
+        } else {
+            draw_text(s, x, y, size, color);
+        }
+    });
 }
 
 fn draw_hud(game: &Game) {
@@ -1002,8 +1023,209 @@ fn draw_shop(game: &Game) {
     );
 }
 
+fn draw_start_menu() {
+    let w = screen_width();
+    let h = screen_height();
+    clear_background(Color::new(0.018, 0.024, 0.02, 1.));
+
+    draw_circle(
+        w * 0.72,
+        h * 0.42,
+        h * 0.55,
+        Color::new(0.25, 0.16, 0.06, 0.10),
+    );
+    draw_rectangle(0., 0., w, h, Color::new(0.016, 0.024, 0.019, 0.70));
+    draw_rectangle(0., 0., w * 0.72, h, Color::new(0.012, 0.018, 0.014, 0.42));
+
+    for x in (0..(w as i32 + 56)).step_by(56) {
+        draw_line(
+            x as f32,
+            0.,
+            x as f32,
+            h,
+            1.,
+            Color::new(0.42, 0.50, 0.40, 0.075),
+        );
+    }
+    for y in (0..(h as i32 + 56)).step_by(56) {
+        draw_line(
+            0.,
+            y as f32,
+            w,
+            y as f32,
+            1.,
+            Color::new(0.42, 0.50, 0.40, 0.075),
+        );
+    }
+    draw_rectangle(
+        w * 0.72,
+        0.,
+        w * 0.28,
+        h,
+        Color::new(0.018, 0.025, 0.020, 0.45),
+    );
+
+    draw_line(21., 21., 91., 21., 1., Color::new(0.91, 0.63, 0.24, 0.45));
+    draw_line(21., 21., 21., 91., 1., Color::new(0.91, 0.63, 0.24, 0.45));
+    draw_line(
+        w - 21.,
+        h - 21.,
+        w - 91.,
+        h - 21.,
+        1.,
+        Color::new(0.91, 0.63, 0.24, 0.45),
+    );
+    draw_line(
+        w - 21.,
+        h - 21.,
+        w - 21.,
+        h - 91.,
+        1.,
+        Color::new(0.91, 0.63, 0.24, 0.45),
+    );
+
+    let left = (w * 0.07).clamp(34., 90.);
+    let title_y = (h * 0.28).max(190.);
+    draw_circle(left + 3., title_y - 82., 3., GREEN);
+    text(
+        "AUTOMATIZACE SELHALA // 03:47",
+        left + 16.,
+        title_y - 78.,
+        11.,
+        Color::new(0.55, 0.58, 0.53, 1.),
+    );
+    text(
+        "HLUBINA",
+        left,
+        title_y,
+        82.,
+        Color::new(0.91, 0.89, 0.82, 1.),
+    );
+    text("7", left + 360., title_y - 4., 50., AMBER);
+    draw_line(
+        left + 4.,
+        title_y + 12.,
+        left + 124.,
+        title_y + 12.,
+        3.,
+        Color::new(0.91, 0.63, 0.24, 0.85),
+    );
+    draw_line(
+        left + 124.,
+        title_y + 12.,
+        left + 205.,
+        title_y + 12.,
+        3.,
+        Color::new(0.91, 0.63, 0.24, 0.0),
+    );
+    text(
+        "Továrna zmlkla. Ve skladech se něco probudilo.",
+        left,
+        title_y + 57.,
+        17.,
+        Color::new(0.66, 0.67, 0.61, 1.),
+    );
+    text(
+        "Vezmi krumpáč a vydělej si na cestu ven.",
+        left,
+        title_y + 82.,
+        17.,
+        Color::new(0.66, 0.67, 0.61, 1.),
+    );
+
+    let card_x = left;
+    let card_y = title_y + 111.;
+    let card_w = 164.;
+    let card_h = 61.;
+    let keys = [
+        ("WASD", "↑↓←→", "Pohyb po sektoru"),
+        ("MYŠ", "", "Míření zbraně"),
+        ("LMB", "SPACE", "Útok"),
+        ("1–5", "", "Volba slotu"),
+        ("E", "", "Sebrat / vyměnit"),
+        ("Q", "", "Odhodit zbraň"),
+        ("B", "", "Dílna a vylepšení"),
+        ("ESC", "", "Pauza"),
+    ];
+    for (i, (key, second, label)) in keys.iter().enumerate() {
+        let x = card_x + (i % 4) as f32 * (card_w + 1.);
+        let y = card_y + (i / 4) as f32 * (card_h + 1.);
+        draw_rectangle(x, y, card_w, card_h, Color::new(0.035, 0.05, 0.035, 0.94));
+        draw_rectangle_lines(x, y, card_w, card_h, 1., Color::new(0.42, 0.49, 0.41, 0.18));
+        let mut key_x = x + 11.;
+        for value in [*key, *second].iter().filter(|value| !value.is_empty()) {
+            let width = measure_text(value, None, 10, 1.).width + 12.;
+            draw_rectangle(key_x, y + 10., width, 17., Color::new(0.10, 0.13, 0.10, 1.));
+            draw_rectangle_lines(
+                key_x,
+                y + 10.,
+                width,
+                17.,
+                1.,
+                Color::new(0.53, 0.59, 0.50, 0.35),
+            );
+            text(
+                value,
+                key_x + 6.,
+                y + 22.,
+                10.,
+                Color::new(0.83, 0.82, 0.75, 1.),
+            );
+            key_x += width + 4.;
+        }
+        text(
+            label,
+            x + 11.,
+            y + 48.,
+            10.,
+            Color::new(0.55, 0.58, 0.53, 1.),
+        );
+    }
+
+    let button_y = card_y + card_h * 2. + 25.;
+    draw_rectangle(left, button_y, 190., 48., Color::new(0.75, 0.40, 0.10, 1.));
+    draw_rectangle(
+        left + 1.,
+        button_y + 1.,
+        188.,
+        22.,
+        Color::new(1.0, 0.78, 0.36, 0.18),
+    );
+    text(
+        "ZAHÁJIT SMĚNU",
+        left + 18.,
+        button_y + 30.,
+        13.,
+        Color::new(0.09, 0.07, 0.03, 1.),
+    );
+    text(
+        "→",
+        left + 158.,
+        button_y + 31.,
+        20.,
+        Color::new(0.09, 0.07, 0.03, 1.),
+    );
+    text(
+        "Inventář má 5 slotů. Zbraně vypadávají z nepřátel.",
+        left + 214.,
+        button_y + 20.,
+        10.,
+        Color::new(0.37, 0.41, 0.36, 1.),
+    );
+    text(
+        "Za šrot kupuješ trvalá vylepšení v dílně.",
+        left + 214.,
+        button_y + 36.,
+        10.,
+        Color::new(0.37, 0.41, 0.36, 1.),
+    );
+}
+
 #[macroquad::main(conf)]
 async fn main() {
+    let ui_font = load_ttf_font_from_bytes(include_bytes!("../assets/LiberationSans-Regular.ttf"))
+        .expect("bundled UI font must load");
+    UI_FONT.with(|font| *font.borrow_mut() = Some(ui_font));
     let mut game = Game::new();
     loop {
         let dt = get_frame_time().min(0.05);
@@ -1060,35 +1282,7 @@ async fn main() {
         }
         game.update(dt);
         if game.mode == Mode::Menu {
-            clear_background(Color::new(0.002, 0.003, 0.0025, 1.));
-            text(
-                "HLUBINA",
-                screen_width() / 2. - 150.,
-                screen_height() / 2. - 80.,
-                72.,
-                AMBER,
-            );
-            text(
-                "SEKTOR 7",
-                screen_width() / 2. - 100.,
-                screen_height() / 2. - 25.,
-                32.,
-                LIGHTGRAY,
-            );
-            text(
-                "Továrna zmlkla. Ve skladech se něco probudilo.",
-                screen_width() / 2. - 220.,
-                screen_height() / 2. + 28.,
-                18.,
-                GRAY,
-            );
-            text(
-                "ENTER / KLIKNUTÍ  —  ZAHÁJIT SMĚNU",
-                screen_width() / 2. - 190.,
-                screen_height() / 2. + 90.,
-                17.,
-                GREEN,
-            );
+            draw_start_menu();
         } else {
             draw_world(&game);
             draw_hud(&game);
